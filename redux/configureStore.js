@@ -10,11 +10,11 @@ import { favorites } from './favorites';
 export const ConfigureStore = () => {
     const store = createStore(
         combineReducers({
-            dishes,
-            comments,
-            promotions,
-            leaders,
-            favorites
+            dishes: dishes,
+            comments: comments,
+            promotions: promotions,
+            leaders: leaders,
+            favorites: favorites
         }),
         applyMiddleware(thunk, logger)
     );
