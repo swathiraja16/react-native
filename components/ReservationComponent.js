@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Text, View, ScrollView, StyleSheet, Picker, Switch, Button, Alert } from 'react-native';
 import DatePicker from 'react-native-datepicker'
 import * as Animatable from 'react-native-animatable'; 
-import { Permissions, Notifications } from 'expo';
+import { Permissions, Notifications, Calendar } from 'expo';
+import { calendarFormat } from 'moment';
 
 class Reservation extends Component {
 
@@ -36,6 +37,7 @@ class Reservation extends Component {
                     text: 'OK',
                     onPress: () => {
                         this.presentLocalNotification(this.state.date); 
+                        this.addReservationToCalendar(this.state.date);
                         this.resetForm();
                     }
                 }
@@ -52,7 +54,7 @@ class Reservation extends Component {
             showModal: false
         });
     }
-
+    //Obtaining Local Notification Permissions
     async obtainNotificationPermission(){
         let permission = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS);
         if (permission.status !== 'granted'){
@@ -64,6 +66,7 @@ class Reservation extends Component {
         return permission;
     }
 
+    //Presenting the local notification on notification bar of native device
     async presentLocalNotification(date){
         await this.obtainNotificationPermission();
         Notifications.presentLocalNotificationAsync({
@@ -78,6 +81,30 @@ class Reservation extends Component {
                 color: '#512DA8'
             }
         })
+    }
+
+    //To obtain permissions for accessing the calendar present in native device
+    async obtainCalendarPermission(){
+        let calPermission = await Permissions.getAsync(Permissions.CALENDAR);
+        if (calPermission.status !== 'granted'){
+            calPermission = await Permissions.askAsync(Permissions.CALENDAR);
+            if(calPermission.status !== 'granted'){
+                Alert.alert('Permissions not granted to access Calender')
+            }
+        }
+        return calPermission;
+    }
+
+    //To insert event in default calendar of native device
+    async addReservationToCalendar(date){
+        await this.obtainCalendarPermission();
+        Calendar.createEventAsync(Calendar.DEFAULT, {
+            title: 'ConFusion Restaurant',
+            startDate: new Date(Date.parse(date)),
+            endDate: new Date(Date.parse(date))+(2*60*60*1000),
+            timeZone: 'USA/New_York'
+        })
+
     }
     
     render() {
